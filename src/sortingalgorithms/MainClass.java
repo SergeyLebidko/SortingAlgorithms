@@ -5,6 +5,7 @@ import java.util.Arrays;
 public class MainClass {
 
     private static final int SIZE_ARRAY = 100;
+    private static final int RANGE_VALUES = 1000;
 
     //Сортировка пузырьком
     private static <E extends Comparable<E>> E[] sortBubble(E[] e) {
@@ -185,7 +186,7 @@ public class MainClass {
         Integer[] a4 = new Integer[SIZE_ARRAY];   //Массив для сортировки Шелла
 
         //Заполняем и выводим исходный массив
-        for (int i = 0; i < SIZE_ARRAY; i++) a0[i] = new Integer((int) (Math.random() * SIZE_ARRAY));
+        for (int i = 0; i < SIZE_ARRAY; i++) a0[i] = new Integer((int) (Math.random() * RANGE_VALUES));
         System.out.println("Исходный числовой массив (целые числа):");
         show(a0);
 
