@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public class MainClass {
 
-    private static final int SIZE_ARRAY = 20;
-    private static final int RANGE_VALUES = 100;
+    private static final int SIZE_ARRAY = 200;
+    private static final int RANGE_VALUES = 1000;
 
     //Сортировка пузырьком
     private static <E extends Comparable<E>> E[] sortBubble(E[] e) {
@@ -39,6 +39,7 @@ public class MainClass {
         System.out.println("Сортировка пузырьком");
         System.out.println("    выполнено сравнений: " + compareCount);
         System.out.println("    выполнено присваиваний: " + assignCount);
+        System.out.println("    общее количество операций: "+(compareCount+assignCount));
 
         return e;
     }
@@ -76,6 +77,7 @@ public class MainClass {
         System.out.println("Сортировка методом выбора");
         System.out.println("    выполнено сравнений: " + compareCount);
         System.out.println("    выполнено присваиваний: " + assignCount);
+        System.out.println("    общее количество операций: "+(compareCount+assignCount));
 
         return e;
     }
@@ -113,6 +115,7 @@ public class MainClass {
         System.out.println("Сортировка вставками");
         System.out.println("    выполнено сравнений: " + compareCount);
         System.out.println("    выполнено присваиваний: " + assignCount);
+        System.out.println("    общее количество операций: "+(compareCount+assignCount));
 
         return e;
     }
@@ -164,6 +167,7 @@ public class MainClass {
         System.out.println("Сортировка Шелла");
         System.out.println("    выполнено сравнений: " + compareCount);
         System.out.println("    выполнено присваиваний: " + assignCount);
+        System.out.println("    общее количество операций: "+(compareCount+assignCount));
 
         return e;
     }
@@ -174,44 +178,48 @@ public class MainClass {
         private int compareCount = 0;        //Счетчик сравнений
         private int assignCount = 0;         //Счетчик присваиваний
 
-        E[] sort(E[] e, int left, int right) {
-            if (e == null) return null;
-
-            System.out.println("l="+left+" r="+right);
-
-            int pos;
-            while (true){
-                if (left==right)break;
-                pos=getSplitPosition(e,left,right);
-                sort(e,left,pos-1);
-                sort(e,pos+1,right);
-            }
-
-            return e;
+        void sort(E[] e, int left, int right) {
+            if (e == null) return;
+            if (left>=right)return;
+            int pos=getSplitPosition(e,left,right);
+            sort(e,left,pos-1);
+            sort(e,pos+1,right);
         }
 
         //Вспомогательный метод для быстрой сортировки
-        int getSplitPosition(E[] e, int left, int right) {
+        private int getSplitPosition(E[] e, int left, int right) {
             E splitElement = e[right];
             E tmp;
             int l = left - 1;
             int r = right + 1;
             int pos;
             while (true) {
-                while (r>l & e[--r].compareTo(splitElement)>=0){}
-                while (l<r & e[++l].compareTo(splitElement)==(-1)){}
+                while ((--r)>l && e[r].compareTo(splitElement)>=0){compareCount++;}
+                if (r>l)compareCount++;
+                while ((++l)<r && e[l].compareTo(splitElement)==(-1)){compareCount++;}
+                if (l<r)compareCount++;
                 if (r<=l)break;
                 tmp=e[r];
                 e[r]=e[l];
                 e[l]=tmp;
+                assignCount+=3;
             }
             pos=r+1;
             e[right]=e[pos];
             e[pos]=splitElement;
+            assignCount++;
             return pos;
         }
-    }
 
+        //Метод отображает статистику работы алгоритма
+        void showStat(){
+            System.out.println();
+            System.out.println("Быстрая сортировка");
+            System.out.println("    выполнено сравнений: " + compareCount);
+            System.out.println("    выполнено присваиваний: " + assignCount);
+            System.out.println("    общее количество операций: "+(compareCount+assignCount));
+        }
+    }
 
     //Вспомогательный метод для отображения массивов
     private static <E> void show(E[] e) {
@@ -255,11 +263,10 @@ public class MainClass {
         //Сортировка Шелла
         a4 = sortShell(a4);
 
-        //Подготовка к быстрой сортировке
+        //Быстрая сортировка
         QuickSort<Integer> qs=new QuickSort<>();
-        System.out.println("Быстрая сортировка");
-        a5=qs.sort(a5,0,(a5.length-1));
-        show(a5);
+        qs.sort(a5,0,a5.length-1);
+        qs.showStat();
 
     }
 
