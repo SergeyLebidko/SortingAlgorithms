@@ -172,8 +172,8 @@ public class MainClass {
         return e;
     }
 
-    //Класс, реализующий быструю сортировку
-    private static class QuickSort<E extends Comparable<E>> {
+    //Класс, реализующий простую быструю сортировку, без использования дополнительных методов сортировки и медианного выбора опорного значения
+    private static class QuickSort1<E extends Comparable<E>> {
 
         private int compareCount = 0;        //Счетчик сравнений
         private int assignCount = 0;         //Счетчик присваиваний
@@ -207,18 +207,138 @@ public class MainClass {
             pos=r+1;
             e[right]=e[pos];
             e[pos]=splitElement;
-            assignCount++;
+            assignCount+=2;
             return pos;
         }
 
         //Метод отображает статистику работы алгоритма
         void showStat(){
             System.out.println();
-            System.out.println("Быстрая сортировка");
+            System.out.println("Простая быстрая сортировка");
             System.out.println("    выполнено сравнений: " + compareCount);
             System.out.println("    выполнено присваиваний: " + assignCount);
             System.out.println("    общее количество операций: "+(compareCount+assignCount));
         }
+
+        //Метод сбрасывает статистику работы алгоритма сортировки
+        void clearStat(){
+            compareCount=0;
+            assignCount=0;
+        }
+    }
+
+    //Класс, реализующий быструю сортировку с использованием сортировки вставками для малых подмассивов и медианным выбором опорного значения
+    private static class QuickSort2<E extends Comparable<E>>{
+
+        private int compareCount = 0;        //Счетчик сравнений
+        private int assignCount = 0;         //Счетчик присваиваний
+
+        void sort(E[] e, int left, int right) {
+            if (e == null) return;
+            if (left>=right)return;
+
+            //Если массив содержит 10 и менее элементов - применяется сортировка вставками
+            if ((right-left+1)<=10){
+                E tmp;
+                int j;
+                for (int i=left;i<right;i++){
+                    tmp=e[i+1];
+                    assignCount++;
+                    j=i;
+                    while ((j>=left) && tmp.compareTo(e[j])==(-1)){
+                        compareCount++;
+                        e[j+1]=e[j];
+                        assignCount++;
+                        j--;
+                    }
+                    compareCount++;
+                    e[j+1]=tmp;
+                    assignCount++;
+                }
+                return;
+            }
+
+            int pos=getSplitPosition(e,left,right);
+            sort(e,left,pos-1);
+            sort(e,pos+1,right);
+        }
+
+        private int getSplitPosition(E[] e, int left, int right){
+            //Выбираем медианное значение
+            int center;              //Положение медианного элемента
+            E splitElement;          //Переменная для хранения опорного (медианного) элемента
+            E tmp;                   //Переменная для временнного хранения элементов
+            center=(left+right)/2;
+
+            //Сравниваем левое и центральное значения
+            if (e[left].compareTo(e[center])==1){
+                tmp=e[left];
+                e[left]=e[center];
+                e[center]=tmp;
+                compareCount++;
+                assignCount+=3;
+            }
+            //Сравниваем левое и правое значения
+            if (e[left].compareTo(e[right])==1){
+                tmp=e[left];
+                e[left]=e[right];
+                e[right]=tmp;
+                compareCount++;
+                assignCount+=3;
+            }
+            //Сравниваем центральное и правое значения
+            if (e[center].compareTo(e[right])==1){
+                tmp=e[center];
+                e[center]=e[right];
+                e[right]=tmp;
+                compareCount++;
+                assignCount+=3;
+            }
+
+            //Медианное значение получено
+            splitElement=e[center];
+
+            int l = left;
+            int r = right;
+            int pos;
+            while (true) {
+                while ((--r)>l && e[r].compareTo(splitElement)>=0){compareCount++;}
+                if (r>l)compareCount++;
+                while ((++l)<r && e[l].compareTo(splitElement)==(-1)){compareCount++;}
+                if (l<r)compareCount++;
+                if (r<=l)break;
+                tmp=e[r];
+                e[r]=e[l];
+                e[l]=tmp;
+                assignCount+=3;
+                if (l==center){
+                    center=r;
+                    continue;
+                }
+            }
+            pos=r+1;
+            e[center]=e[pos];
+            e[pos]=splitElement;
+            assignCount+=2;
+            return pos;
+
+        }
+
+        //Метод отображает статистику работы алгоритма
+        void showStat(){
+            System.out.println();
+            System.out.println("Комбинация быстрой сортировки и сортировки вставками");
+            System.out.println("    выполнено сравнений: " + compareCount);
+            System.out.println("    выполнено присваиваний: " + assignCount);
+            System.out.println("    общее количество операций: "+(compareCount+assignCount));
+        }
+
+        //Метод сбрасывает статистику работы алгоритма сортировки
+        void clearStat(){
+            compareCount=0;
+            assignCount=0;
+        }
+
     }
 
     //Вспомогательный метод для отображения массивов
@@ -237,11 +357,12 @@ public class MainClass {
         Integer[] a2 = new Integer[SIZE_ARRAY];   //Массив для сортировки выбором
         Integer[] a3 = new Integer[SIZE_ARRAY];   //Массив для сортировки вставками
         Integer[] a4 = new Integer[SIZE_ARRAY];   //Массив для сортировки Шелла
-        Integer[] a5 = new Integer[SIZE_ARRAY];   //Массив для быстрой сортировки
+        Integer[] a5 = new Integer[SIZE_ARRAY];   //Массив для простой быстрой сортировки
+        Integer[] a6 = new Integer[SIZE_ARRAY];   //Массив для комбинированной быстрой сортировки
 
         //Заполняем и выводим исходный массив
         for (int i = 0; i < SIZE_ARRAY; i++) a0[i] = new Integer((int) (Math.random() * RANGE_VALUES));
-        System.out.println("Исходный числовой массив (целые числа):");
+        System.out.println("Исходный числовой массив (целые числа, размер "+SIZE_ARRAY+"):");
         show(a0);
 
         //Заполняем вспомогательные массивы, которые будем потом сортировать
@@ -250,6 +371,7 @@ public class MainClass {
         a3 = Arrays.copyOf(a0, SIZE_ARRAY);
         a4 = Arrays.copyOf(a0, SIZE_ARRAY);
         a5 = Arrays.copyOf(a0, SIZE_ARRAY);
+        a6 = Arrays.copyOf(a0, SIZE_ARRAY);
 
         //Сортировка пузырьком
         a1 = sortBubble(a1);
@@ -263,10 +385,35 @@ public class MainClass {
         //Сортировка Шелла
         a4 = sortShell(a4);
 
-        //Быстрая сортировка
-        QuickSort<Integer> qs=new QuickSort<>();
-        qs.sort(a5,0,a5.length-1);
-        qs.showStat();
+        //Простая быстрая сортировка
+        QuickSort1<Integer> qs1=new QuickSort1<>();
+        qs1.sort(a5,0,a5.length-1);
+        qs1.showStat();
+        qs1.clearStat();
+
+        //Быстрая сортировка с выбором медианного опорного значения, комбинированная с сортировкой вставками
+        QuickSort2<Integer> qs2=new QuickSort2<>();
+        qs2.sort(a6, 0, a6.length-1);
+        qs2.showStat();
+        qs2.clearStat();
+        show(a6);
+
+        //Сортировка массива, осортированного в обратном порядке
+        Integer[] t0=new Integer[SIZE_ARRAY*5];
+        Integer[] t1=new Integer[SIZE_ARRAY*5];
+        Integer[] t2=new Integer[SIZE_ARRAY*5];
+        for (int i=0;i<(SIZE_ARRAY*5);i++)t0[i]=(SIZE_ARRAY*5)-i-1;
+        t1=Arrays.copyOf(t0,SIZE_ARRAY*5);
+        t2=Arrays.copyOf(t0,SIZE_ARRAY*5);
+
+        System.out.println();
+        System.out.println("Сравнение различных методов быстрой сортировки при сортировке массива размера "+(SIZE_ARRAY*5)+", элементы которого уже упорядочены в обратном порядке");
+
+        qs1.sort(t1,0,t1.length-1);
+        qs1.showStat();
+
+        qs2.sort(t2,0,t2.length-1);
+        qs2.showStat();
 
     }
 
