@@ -396,7 +396,6 @@ public class MainClass {
         qs2.sort(a6, 0, a6.length-1);
         qs2.showStat();
         qs2.clearStat();
-        show(a6);
 
         //Сортировка массива, осортированного в обратном порядке
         Integer[] t0=new Integer[SIZE_ARRAY*5];
